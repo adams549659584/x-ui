@@ -61,6 +61,8 @@ jobs:
           asset_path: x-ui-linux-amd64.tar.gz
           asset_name: x-ui-linux-amd64.tar.gz
           asset_content_type: application/gzip
+          draft: false
+          prerelease: false
   linuxarm64build:
     name: build x-ui arm64 version
     needs: release
@@ -103,6 +105,8 @@ jobs:
           asset_path: x-ui-linux-arm64.tar.gz
           asset_name: x-ui-linux-arm64.tar.gz
           asset_content_type: application/gzip
+          draft: false
+          prerelease: false
   linuxs390xbuild:
     name: build x-ui s390x version
     needs: release
@@ -145,6 +149,8 @@ jobs:
           asset_path: x-ui-linux-s390x.tar.gz
           asset_name: x-ui-linux-s390x.tar.gz
           asset_content_type: application/gzip
+          draft: false
+          prerelease: false
 
   docker-build:
     name: build x-ui docker images
