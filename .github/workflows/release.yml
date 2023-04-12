@@ -182,13 +182,13 @@ jobs:
         with:
           build-args: |
             REPO_USER=${{ github.repository_owner }}
-            X_UI_VERSION=${{ github.ref }}
+            X_UI_VERSION=${{ github.ref_name }}
           platforms: linux/amd64,linux/arm64,linux/s390x
           context: .
           file: ./docker/Dockerfile.alpine  
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/x-ui:${{ github.ref }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/x-ui:${{ github.ref_name }}
             ${{ secrets.DOCKERHUB_USERNAME }}/x-ui:latest
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/x-ui:cache
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/x-ui:cache,mode=max    
