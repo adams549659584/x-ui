@@ -169,6 +169,24 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GAYHUB_TOKEN }}
 
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ${{ github.repository }}
+            ghcr.io/${{ github.repository }}
+          # generate Docker tags based on the following events/attributes
+          #   nightly, master, pr-2, 1.2.3, 1.2, 1
+          tags: |
+            type=schedule,pattern=nightly
+            type=edge
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}          
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       
@@ -191,8 +209,7 @@ jobs:
           context: .
           file: ./docker/Dockerfile.alpine  
           push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/x-ui:${{ github.ref_name }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/x-ui:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/x-ui:cache
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/x-ui:cache,mode=max    
