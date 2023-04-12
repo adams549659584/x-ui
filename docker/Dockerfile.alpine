@@ -22,7 +22,7 @@ RUN chmod -R 777 x-ui && \
     cp -f x-ui.sh /usr/bin/x-ui.sh && \
     rm -rf /var/cache/apk/*
 
-COPY runit /etc/service
+COPY docker/runit /etc/service
 RUN chmod -R 777 /etc/service/x-ui
 
 CMD [ "runsvdir", "-P", "/etc/service"]
