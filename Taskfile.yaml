@@ -1,0 +1,54 @@
+version: '3'
+
+vars:
+  BUILD_VERSION:
+    sh: git describe --tags --abbrev=0
+  BUILD_DATE:
+    sh: date "+%F %T"
+  COMMIT_ID:
+    sh: git rev-parse HEAD
+
+tasks:
+  clean:
+    cmds:
+      - |
+        rm -rf x-ui && mkdir -p x-ui
+  download-xray:
+    cmds:
+      - |
+        mkdir -p x-ui/bin && \
+        cd x-ui/bin && \
+        wget https://github.com/XTLS/Xray-core/releases/latest/download/Xray-{{.FriendlyName}}.zip && \
+        unzip Xray-{{.FriendlyName}}.zip && \
+        rm -rf Xray-{{.FriendlyName}}.zip
+
+  copy-resource:
+    cmds:
+      - cp x-ui.service x-ui/x-ui.service
+      - cp x-ui.sh x-ui/x-ui.sh
+
+  package:
+    cmds:
+      - tar -zcvf x-ui-linux-amd64.tar.gz x-ui
+
+  build-tpl:
+    label: build-{{.TASK}}
+    cmds:
+      - task: clean
+      - echo -n "{{.BUILD_VERSION}}" > config/version
+      - |
+        CGO_ENABLED=1 GOOS={{.GOOS}} GOARCH={{.GOARCH}} \
+        go build -trimpath --ldflags '-extldflags "-static"' -o x-ui/x-ui -v main.go
+      - upx x-ui/x-ui
+      - task: download-xray
+        vars: { FriendlyName: '{{.FriendlyName}}' }
+      - task: copy-resource
+      - task: package
+
+  linux-amd64:
+    cmds:
+      - task: build-tpl
+        vars: { TASK: '{{.TASK}}', GOOS: linux, GOARCH: amd64, FriendlyName: 'linux-64' }
+  default:
+    cmds:
+      - task: linux-amd64

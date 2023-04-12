@@ -1,0 +1,28 @@
+FROM alpine:latest
+
+ARG REPO_USER=adams549659584
+ARG X_UI_VERSION=0.3.3
+
+WORKDIR /usr/local/
+RUN apk update && \
+    apk add --no-cache tzdata runit
+
+# ldd x-ui/xui 可以看出依赖环境，再补环境
+RUN mkdir -p /lib64 && \
+    ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
+
+RUN wget -q https://github.com/${REPO_USER}/x-ui/releases/download/${X_UI_VERSION}/x-ui-linux-amd64.tar.gz && \
+    tar -zxvf x-ui-linux-amd64.tar.gz && \
+    rm x-ui-linux-amd64.tar.gz
+
+# COPY x-ui /usr/local/x-ui
+
+RUN chmod -R 777 x-ui && \
+    cd x-ui && \
+    cp -f x-ui.sh /usr/bin/x-ui.sh && \
+    rm -rf /var/cache/apk/*
+
+COPY runit /etc/service
+RUN chmod -R 777 /etc/service/x-ui
+
+CMD [ "runsvdir", "-P", "/etc/service"]

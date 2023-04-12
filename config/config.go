@@ -48,3 +48,11 @@ func IsDebug() bool {
 func GetDBPath() string {
 	return fmt.Sprintf("/etc/%s/%s.db", GetName(), GetName())
 }
+
+func GetWebPort() string {
+	webPort := os.Getenv("XUI_WEB_PORT")
+	if webPort == "" {
+		webPort = "54321"
+	}
+	return webPort
+}

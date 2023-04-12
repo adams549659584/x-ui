@@ -145,3 +145,50 @@ jobs:
           asset_path: x-ui-linux-s390x.tar.gz
           asset_name: x-ui-linux-s390x.tar.gz
           asset_content_type: application/gzip
+
+  docker-build:
+    name: build x-ui docker images
+    needs: [linuxamd64build, linuxarm64build, linuxs390xbuild]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup timezone
+        uses: zcong1993/setup-timezone@master
+        with:
+          timezone: Asia/Shanghai
+
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GAYHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          build-args: |
+            REPO_USER=${{ github.repository_owner }}
+            X_UI_VERSION=${{ github.ref }}
+          platforms: linux/amd64,linux/arm64,linux/s390x
+          context: .
+          file: ./docker/Dockerfile.alpine  
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/x-ui:${{ github.ref }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/x-ui:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/x-ui:cache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/x-ui:cache,mode=max    

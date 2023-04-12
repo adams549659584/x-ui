@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"x-ui/config"
 	"x-ui/database"
 	"x-ui/database/model"
 	"x-ui/logger"
@@ -23,7 +24,7 @@ var xrayTemplateConfig string
 var defaultValueMap = map[string]string{
 	"xrayTemplateConfig": xrayTemplateConfig,
 	"webListen":          "",
-	"webPort":            "54321",
+	"webPort":            config.GetWebPort(),
 	"webCertFile":        "",
 	"webKeyFile":         "",
 	"secret":             random.Seq(32),
