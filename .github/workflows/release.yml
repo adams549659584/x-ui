@@ -77,7 +77,7 @@ jobs:
       - name: build linux arm64 version
         run: |
           sudo apt-get update
-          sudo apt install install upx-ucl gcc-aarch64-linux-gnu -y
+          sudo apt install upx-ucl gcc-aarch64-linux-gnu -y
           CGO_ENABLED=1 GOOS=linux GOARCH=arm64 CC=aarch64-linux-gnu-gcc go build -trimpath --ldflags '-extldflags "-static"' -o xui-release -v main.go
           upx xui-release
           mkdir x-ui
@@ -120,7 +120,7 @@ jobs:
       - name: build linux s390x version
         run: |
           sudo apt-get update
-          sudo apt install install upx-ucl gcc-s390x-linux-gnu -y
+          sudo apt install upx-ucl gcc-s390x-linux-gnu -y
           CGO_ENABLED=1 GOOS=linux GOARCH=s390x CC=s390x-linux-gnu-gcc go build -trimpath --ldflags '-extldflags "-static"' -o xui-release -v main.go
           upx xui-release
           mkdir x-ui
