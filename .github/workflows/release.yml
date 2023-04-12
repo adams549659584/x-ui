@@ -120,9 +120,8 @@ jobs:
       - name: build linux s390x version
         run: |
           sudo apt-get update
-          sudo apt install upx-ucl gcc-s390x-linux-gnu -y
+          sudo apt install gcc-s390x-linux-gnu -y
           CGO_ENABLED=1 GOOS=linux GOARCH=s390x CC=s390x-linux-gnu-gcc go build -trimpath --ldflags '-extldflags "-static"' -o xui-release -v main.go
-          upx xui-release
           mkdir x-ui
           cp xui-release x-ui/xui-release
           cp x-ui.service x-ui/x-ui.service
