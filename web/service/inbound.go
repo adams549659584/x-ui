@@ -143,7 +143,6 @@ func (s *InboundService) AddTraffic(traffics []*xray.Traffic) (err error) {
 		return nil
 	}
 	db := database.GetDB()
-	db = db.Model(model.Inbound{})
 	tx := db.Begin()
 	defer func() {
 		if err != nil {
@@ -154,9 +153,22 @@ func (s *InboundService) AddTraffic(traffics []*xray.Traffic) (err error) {
 	}()
 	for _, traffic := range traffics {
 		if traffic.IsInbound {
-			err = tx.Where("tag = ?", traffic.Tag).
-				UpdateColumn("up", gorm.Expr("up + ?", traffic.Up)).
-				UpdateColumn("down", gorm.Expr("down + ?", traffic.Down)).
+			err = tx.Model(&model.Inbound{}).Where("tag = ?", traffic.Tag).
+				UpdateColumns(map[string]interface{}{
+					"up":   gorm.Expr("up + ?", traffic.Up),
+					"down": gorm.Expr("down + ?", traffic.Down),
+				}).
+				Error
+			if err != nil {
+				return
+			}
+		}
+		if traffic.IsUser {
+			err = tx.Model(&model.ClientInfo{}).Where("email = ?", traffic.Tag).
+				UpdateColumns(map[string]interface{}{
+					"up":   gorm.Expr("up + ?", traffic.Up),
+					"down": gorm.Expr("down + ?", traffic.Down),
+				}).
 				Error
 			if err != nil {
 				return

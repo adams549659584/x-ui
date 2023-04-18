@@ -64,3 +64,14 @@ type Setting struct {
 	Key   string `json:"key" form:"key"`
 	Value string `json:"value" form:"value"`
 }
+
+type ClientInfo struct {
+	Id         int    `json:"id" form:"id" gorm:"primaryKey;autoIncrement"`
+	InboundId  int    `json:"inboundId" form:"inboundId"`
+	Enable     bool   `json:"enable" form:"enable"`
+	Email      string `json:"email" form:"email"`
+	Up         int64  `json:"up" form:"up"`
+	Down       int64  `json:"down" form:"down"`
+	Total      int64  `json:"total" form:"total"`
+	ExpiryTime int64  `json:"expiryTime" form:"expiryTime"`
+}

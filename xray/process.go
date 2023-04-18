@@ -230,6 +230,11 @@ func (p *process) Stop() error {
 	return p.cmd.Process.Kill()
 }
 
+// 获取流量统计 ./x-ui/bin/xray-linux-amd64 api statsquery --server=127.0.0.1:62789
+//
+// Parameters:
+//
+//	reset (bool): 是否重置流量
 func (p *process) GetTraffic(reset bool) ([]*Traffic, error) {
 	if p.apiPort == 0 {
 		return nil, common.NewError("xray api port wrong:", p.apiPort)
@@ -254,7 +259,7 @@ func (p *process) GetTraffic(reset bool) ([]*Traffic, error) {
 	traffics := make([]*Traffic, 0)
 	for _, stat := range resp.GetStat() {
 		matchs := trafficRegex.FindStringSubmatch(stat.Name)
-		if len(matchs) > 0 {
+		if len(matchs) == 4 {
 			isInbound := matchs[1] == "inbound"
 			tag := matchs[2]
 			isDown := matchs[3] == "downlink"
@@ -276,10 +281,27 @@ func (p *process) GetTraffic(reset bool) ([]*Traffic, error) {
 				traffic.Up = stat.Value
 			}
 		}
-		// todo user match
-		// userMatchs := userTrafficRegex.FindStringSubmatch(stat.Name)
-		// if len(userMatchs) > 0 {
-		// }
+		// user match
+		userMatchs := userTrafficRegex.FindStringSubmatch(stat.Name)
+		if len(userMatchs) == 4 {
+			tag := userMatchs[2]
+			isDown := userMatchs[3] == "downlink"
+			traffic, ok := tagTrafficMap[tag]
+			if !ok {
+				traffic = &Traffic{
+					IsInbound: false,
+					IsUser:    true,
+					Tag:       tag,
+				}
+				tagTrafficMap[tag] = traffic
+				traffics = append(traffics, traffic)
+			}
+			if isDown {
+				traffic.Down = stat.Value
+			} else {
+				traffic.Up = stat.Value
+			}
+		}
 	}
 
 	return traffics, nil
