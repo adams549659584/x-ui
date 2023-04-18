@@ -1,12 +1,68 @@
 {{define "form/vmess"}}
 <a-form layout="inline">
-    <a-form-item label="id">
-        <a-input v-model.trim="inbound.settings.vmesses[0].id"></a-input>
-    </a-form-item>
-    <a-form-item label="额外 ID">
-        <a-input type="number" v-model.number="inbound.settings.vmesses[0].alterId"></a-input>
-    </a-form-item>
-    <a-form-item label="禁用不安全加密">
+    <a-form layout="inline">
+        <a-form-item label='添加用户'>
+            <a-row>
+                <a-button type="primary" size="small" @click="inbound.settings.addVmess()">
+                    +
+                </a-button>
+            </a-row>
+        </a-form-item>
+
+        <a-form v-for="(vmesses, index) in inbound.settings.vmesses" layout="inline">
+            <a-divider>
+                User[[ index + 1 ]]|[[isClientEnable(inbound.settings.vmesses[index].email)]]
+                <a-icon type="delete" @click="() => inbound.settings.delVmess(index)"
+                    style="color: rgb(255, 77, 79);cursor: pointer;" />
+            </a-divider>
+            <a-form-item label="id">
+                <a-input style="width: 80%" v-model.trim="inbound.settings.vmesses[index].id"></a-input>
+            </a-form-item>
+            <a-form-item label="alterId">
+                <a-input type="number" v-model.number="inbound.settings.vmesses[index].alterId"></a-input>
+            </a-form-item>
+            <a-form-item label="email">
+                <a-input v-model.trim="inbound.settings.vmesses[index].email"></a-input>
+            </a-form-item>
+            <!-- <a-form-item>
+                <span slot="label">
+                    到期时间
+                    <a-tooltip>
+                        <template slot="title">
+                            留空则永不到期
+                        </template>
+                        <a-icon type="question-circle" theme="filled"></a-icon>
+                    </a-tooltip>
+                </span>
+                <a-date-picker :show-time="{ format: 'HH:mm' }" format="YYYY-MM-DD HH:mm"
+                    v-model="inbound.settings.vmesses[index]._expiryTime" style="width: 300px;"></a-date-picker>
+            </a-form-item> -->
+            <!-- <a-form-item>
+                <span slot="label">
+                    流量限制
+                    <a-tooltip>
+                        <template slot="title">
+                            0 表示不限制
+                        </template>
+                        <a-icon type="question-circle" theme="filled"></a-icon>
+                    </a-tooltip>
+                </span>
+                <a-input-number v-model="inbound.settings.vmesses[index].totalTraffic" :min="0"></a-input-number>
+            </a-form-item> -->
+            <!-- <a-form-item label="流量详情">
+                <a-tag color="blue">↑[[
+                    sizeFormat(getClientTrafficUp(inbound.settings.vmesses[index].email)) ]] | [[
+                    sizeFormat(getClientTrafficDown(inbound.settings.vmesses[index].email))
+                    ]]↓</a-tag>
+                <a-tag color="red">used : [[
+                    sizeFormat(getClientTrafficUp(inbound.settings.vmesses[index].email) +
+                    getClientTrafficDown(inbound.settings.vmesses[index].email))
+                    ]]</a-tag>
+            </a-form-item> -->
+            <a-divider v-if="inbound.settings.vmesses.length - 1 === index" />
+        </a-form>
+    </a-form>
+    <a-form-item label='禁用不安全加密'>
         <a-switch v-model.number="inbound.settings.disableInsecure"></a-switch>
     </a-form-item>
 </a-form>

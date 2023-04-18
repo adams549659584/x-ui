@@ -36,6 +36,10 @@ class DBInbound {
         this.remark = "";
         this.enable = true;
         this.expiryTime = 0;
+        this.autoreset = false;
+        this.ipalert = false;
+        this.iplimit = 0;
+        this.clientInfo = "";
 
         this.listen = "";
         this.port = 0;
@@ -110,6 +114,11 @@ class DBInbound {
         return this.expiryTime < new Date().getTime();
     }
 
+    get isDBInboundEmpty() {
+        const inbound = this.toInbound();
+        return inbound.isInboundEmpty();
+    }
+
     toInbound() {
         let settings = {};
         if (!ObjectUtil.isEmpty(this.settings)) {
@@ -133,6 +142,7 @@ class DBInbound {
             streamSettings: streamSettings,
             tag: this.tag,
             sniffing: sniffing,
+            clientInfo: this.clientInfo
         };
         return Inbound.fromJson(config);
     }
@@ -149,10 +159,16 @@ class DBInbound {
         }
     }
 
-    genLink() {
+    genLink(indexOfUsers = 0) {
         const inbound = this.toInbound();
-        return inbound.genLink(this.address, this.remark);
+        return inbound.genLink(indexOfUsers, this.address, this.remark);
     }
+
+    get genLinkforAll() {
+        const inbound = this.toInbound();
+        return inbound.genLinkforAll(this.address, this.remark);
+    }
+
 }
 
 class AllSetting {
@@ -168,6 +184,9 @@ class AllSetting {
         this.tgBotChatId = 0;
         this.tgRunTime = "";
         this.xrayTemplateConfig = "";
+        this.tgNotifyExpireTimeDiff = 0;
+        this.tgNotifyTrafficDiff = 0;
+        this.cpulimitNotifyConfig = 0;
 
         this.timeLocation = "Asia/Shanghai";
 

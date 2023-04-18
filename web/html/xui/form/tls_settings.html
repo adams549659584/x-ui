@@ -1,53 +1,106 @@
 {{define "form/tlsSettings"}}
 <!-- tls enable -->
 <a-form layout="inline" v-if="inbound.canSetTls()">
-    <a-form-item label="tls">
+    <a-form-item v-if="inbound.canEnableReality()">
+        <span slot="label">
+            reality
+            <a-tooltip>
+                <template slot="title">
+                    xray core需1.8.0及以上
+                </template>
+                <a-icon type="question-circle" theme="filled"></a-icon>
+            </a-tooltip>
+        </span>
+        <a-switch v-model="inbound.reality"></a-switch>
+    </a-form-item>
+    </a-form-item>
+    <a-form-item v-if="inbound.canEnableTls()" label="tls">
         <a-switch v-model="inbound.tls">
         </a-switch>
     </a-form-item>
-    <a-form-item v-if="inbound.canEnableXTls()" label="xtls">
+    <a-form-item v-if="inbound.canEnableXTls()">
+        <span slot="label">
+            xtls
+            <a-tooltip>
+                <template slot="title">
+                    xray core需1.7.5及以下,不推荐使用
+                </template>
+                <a-icon type="question-circle" theme="filled"></a-icon>
+            </a-tooltip>
+        </span>
         <a-switch v-model="inbound.xtls"></a-switch>
     </a-form-item>
 </a-form>
 
 <!-- tls settings -->
-<a-form v-if="inbound.tls || inbound.xtls"
-        layout="inline">
-    <a-form-item label="域名">
+<a-form v-if="inbound.tls || inbound.xtls" layout="inline">
+    <a-form-item label="minVersion">
+        <a-select v-model="inbound.stream.tls.minVersion" style="width: 60px">
+            <a-select-option v-for="key in TLS_VERSION_OPTION" :value="key">[[ key ]]</a-select-option>
+        </a-select>
+    </a-form-item>
+    <a-form-item label="maxVersion">
+        <a-select v-model="inbound.stream.tls.maxVersion" style="width: 60px">
+            <a-select-option v-for="key in TLS_VERSION_OPTION" :value="key">[[ key ]]</a-select-option>
+        </a-select>
+    </a-form-item>
+    <a-form-item label="cipherSuites">
+        <a-select v-model="inbound.stream.tls.cipherSuites" style="width: 300px">
+            <a-select-option value="">auto</a-select-option>
+            <a-select-option v-for="key in TLS_CIPHER_OPTION" :value="key">[[ key ]]</a-select-option>
+        </a-select>
+    </a-form-item>
+    <a-form-item label="server name">
         <a-input v-model.trim="inbound.stream.tls.server"></a-input>
     </a-form-item>
-    <a-form-item label="alpn" placeholder="http/1.1,h2">
+    <a-form-item label='协商'>
         <a-input v-model.trim="inbound.stream.tls.alpn"></a-input>
     </a-form-item>
-    <a-form-item label="证书">
-        <a-radio-group v-model="inbound.stream.tls.certs[0].useFile"
-                       button-style="solid">
+    <a-form-item label='证书'>
+        <a-radio-group v-model="inbound.stream.tls.certs[0].useFile" button-style="solid">
             <a-radio-button :value="true">certificate file path</a-radio-button>
             <a-radio-button :value="false">certificate file content</a-radio-button>
         </a-radio-group>
     </a-form-item>
     <template v-if="inbound.stream.tls.certs[0].useFile">
-        <a-form-item label="公钥文件路径">
+        <a-form-item label='公钥文件路径'>
             <a-input v-model.trim="inbound.stream.tls.certs[0].certFile"></a-input>
         </a-form-item>
-        <a-form-item label="密钥文件路径">
+        <a-form-item label='密钥文件路径'>
             <a-input v-model.trim="inbound.stream.tls.certs[0].keyFile"></a-input>
         </a-form-item>
     </template>
     <template v-else>
-        <a-form-item label="公钥内容">
-            <a-input type="textarea" :rows="2"
-                     v-model="inbound.stream.tls.certs[0].cert"></a-input>
+        <a-form-item label='公钥内容'>
+            <a-input type="textarea" :rows="2" v-model="inbound.stream.tls.certs[0].cert"></a-input>
         </a-form-item>
-        <a-form-item label="密钥内容">
-            <a-input type="textarea" :rows="2"
-                     v-model="inbound.stream.tls.certs[0].key"></a-input>
+        <a-form-item label='密钥内容'>
+            <a-input type="textarea" :rows="2" v-model="inbound.stream.tls.certs[0].key"></a-input>
         </a-form-item>
     </template>
 </a-form>
-<a-form layout="inline" v-else-if = "inbound.stream.network === 'tcp' ">
-    <a-form-item label="tcp-acceptProxyProtocol">
-        <a-switch v-model="inbound.stream.tcp.acceptProxyProtocol"></a-switch>
+<a-form v-else-if="inbound.reality" layout="inline">
+    <a-form-item label="show">
+        <a-switch v-model="inbound.stream.reality.show">
+        </a-switch>
+    </a-form-item>
+    <a-form-item label="目标网站">
+        <a-input v-model.trim="inbound.stream.reality.dest"></a-input>
+    </a-form-item>
+    <a-form-item label="xver">
+        <a-input type="number" v-model.number="inbound.stream.reality.xver" :min="0" style="width: 60px"></a-input>
+    </a-form-item>
+    <a-form-item label="可选域名">
+        <a-input v-model.trim="inbound.stream.reality.serverNames"></a-input>
+    </a-form-item>
+    <a-form-item label="私钥">
+        <a-input v-model.trim="inbound.stream.reality.privateKey" style="width: 360px"></a-input>
+    </a-form-item>
+    <a-form-item label="公钥">
+        <a-input v-model.trim="inbound.stream.reality.publicKey" style="width: 360px"></a-input>
+    </a-form-item>
+    <a-form-item label="shortIds">
+        <a-input v-model.trim="inbound.stream.reality.shortIds"></a-input>
     </a-form-item>
 </a-form>
 {{end}}

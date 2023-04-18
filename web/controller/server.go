@@ -1,16 +1,18 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
 	"time"
 	"x-ui/web/global"
 	"x-ui/web/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ServerController struct {
 	BaseController
 
 	serverService service.ServerService
+	xrayService   service.XrayService
 
 	lastStatus        *service.Status
 	lastGetStatusTime time.Time
@@ -35,6 +37,8 @@ func (a *ServerController) initRouter(g *gin.RouterGroup) {
 	g.POST("/status", a.status)
 	g.POST("/getXrayVersion", a.getXrayVersion)
 	g.POST("/installXray/:version", a.installXray)
+	g.POST("/stopXrayService", a.stopXrayService)
+	g.POST("/restartXrayService", a.restartXrayService)
 }
 
 func (a *ServerController) refreshStatus() {
@@ -82,4 +86,14 @@ func (a *ServerController) installXray(c *gin.Context) {
 	version := c.Param("version")
 	err := a.serverService.UpdateXray(version)
 	jsonMsg(c, "安装 xray", err)
+}
+
+func (a *ServerController) stopXrayService(c *gin.Context) {
+	err := a.xrayService.StopXray()
+	jsonMsg(c, "停止xray服务", err)
+}
+
+func (a *ServerController) restartXrayService(c *gin.Context) {
+	err := a.xrayService.RestartXray(true)
+	jsonMsg(c, "重启xray服务", err)
 }

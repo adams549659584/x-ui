@@ -1,21 +1,90 @@
 {{define "form/vless"}}
 <a-form layout="inline">
-    <a-form-item label="id">
-        <a-input v-model.trim="inbound.settings.vlesses[0].id"></a-input>
-    </a-form-item>
-    <a-form-item v-if="inbound.xtls" label="flow">
-        <a-select v-model="inbound.settings.vlesses[0].flow" style="width: 150px">
-            <a-select-option value="">无</a-select-option>
-            <a-select-option v-for="key in FLOW_CONTROL" :value="key">[[ key ]]</a-select-option>
-        </a-select>
-    </a-form-item>
+    <a-form layout="inline">
+        <a-form-item label='添加用户'>
+            <a-row>
+                <a-button type="primary" size="small" @click="inbound.settings.addVless()">
+                    +
+                </a-button>
+            </a-row>
+        </a-form-item>
+
+        <a-form v-for="(vlesses, index) in inbound.settings.vlesses" layout="inline">
+            <a-divider>
+                User[[ index + 1 ]]|[[isClientEnable(inbound.settings.vlesses[index].email)]]
+                <a-icon type="delete" @click="() => inbound.settings.delVless(index)"
+                    style="color: rgb(255, 77, 79);cursor: pointer;" />
+            </a-divider>
+            <a-form-item label="id">
+                <a-input style="width: 80%" v-model.trim="inbound.settings.vlesses[index].id"></a-input>
+            </a-form-item>
+            <a-form-item v-if="inbound.xtls" label="flow">
+                <a-select v-model="inbound.settings.vlesses[index].flow" style="width: 150px">
+                    <a-select-option value="" selected>none</a-select-option>
+                    <a-select-option v-for="key in XTLS_FLOW_CONTROL" :value="key">[[ key
+                        ]]</a-select-option>
+                </a-select>
+            </a-form-item>
+            <a-form-item v-else-if="inbound.canEnableTlsFlow()" label="flow" layout="inline">
+                <a-select v-model="inbound.settings.vlesses[index].flow" style="width: 150px">
+                    <a-select-option value="" selected>none</a-select-option>
+                    <a-select-option v-for="key in TLS_FLOW_CONTROL" :value="key">[[ key
+                        ]]</a-select-option>
+                </a-select>
+            </a-form-item>
+            <a-form-item v-if="inbound.tls || inbound.reality" label="utls" layout="inline">
+                <a-select v-model="inbound.settings.vlesses[index].fingerprint" label="utls" style="width: 150px">
+                    <a-select-option v-for="key in UTLS_FINGERPRINT" :value="key">[[ key
+                        ]]</a-select-option>
+                </a-select>
+            </a-form-item>
+            <a-form-item label="email">
+                <a-input style="width: 80%" v-model.trim="inbound.settings.vlesses[index].email"></a-input>
+            </a-form-item>
+            <!-- <a-form-item>
+                <span slot="label">
+                    到期时间
+                    <a-tooltip>
+                        <template slot="title">
+                            留空则永不到期
+                        </template>
+                        <a-icon type="question-circle" theme="filled"></a-icon>
+                    </a-tooltip>
+                </span>
+                <a-date-picker :show-time="{ format: 'HH:mm' }" format="YYYY-MM-DD HH:mm"
+                    v-model="inbound.settings.vlesses[index]._expiryTime" style="width: 300px;"></a-date-picker>
+            </a-form-item> -->
+            <!-- <a-form-item>
+                <span slot="label">
+                    流量限制
+                    <a-tooltip>
+                        <template slot="title">
+                            0 表示不限制
+                        </template>
+                        <a-icon type="question-circle" theme="filled"></a-icon>
+                    </a-tooltip>
+                </span>
+                <a-input-number v-model="inbound.settings.vlesses[index].totalTraffic" :min="0"></a-input-number>
+            </a-form-item> -->
+            <!-- <a-form-item label="流量详情">
+                <a-tag color="blue">↑[[
+                    sizeFormat(getClientTrafficUp(inbound.settings.vlesses[index].email)) ]] | [[
+                    sizeFormat(getClientTrafficDown(inbound.settings.vlesses[index].email))
+                    ]]↓</a-tag>
+                <a-tag color="red">used : [[
+                    sizeFormat(getClientTrafficUp(inbound.settings.vlesses[index].email) +
+                    getClientTrafficDown(inbound.settings.vlesses[index].email))
+                    ]]</a-tag>
+            </a-form-item> -->
+            <a-divider v-if="inbound.settings.vlesses.length - 1 === index" />
+        </a-form>
+    </a-form>
 </a-form>
 
 <a-form layout="inline">
     <a-form-item label="fallbacks">
         <a-row>
-            <a-button type="primary" size="small"
-                      @click="inbound.settings.addFallback()">
+            <a-button type="primary" size="small" @click="inbound.settings.addFallback()">
                 +
             </a-button>
         </a-row>
@@ -27,7 +96,7 @@
     <a-divider>
         fallback[[ index + 1 ]]
         <a-icon type="delete" @click="() => inbound.settings.delFallback(index)"
-                style="color: rgb(255, 77, 79);cursor: pointer;"/>
+            style="color: rgb(255, 77, 79);cursor: pointer;" />
     </a-divider>
     <a-form-item label="name">
         <a-input v-model="fallback.name"></a-input>
@@ -44,6 +113,6 @@
     <a-form-item label="xver">
         <a-input type="number" v-model.number="fallback.xver"></a-input>
     </a-form-item>
-    <a-divider v-if="inbound.settings.fallbacks.length - 1 === index"/>
+    <a-divider v-if="inbound.settings.fallbacks.length - 1 === index" />
 </a-form>
 {{end}}

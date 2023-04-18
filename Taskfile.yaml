@@ -39,7 +39,7 @@ tasks:
       - |
         CGO_ENABLED=1 GOOS={{.GOOS}} GOARCH={{.GOARCH}} \
         go build -trimpath --ldflags '-extldflags "-static"' -o x-ui/x-ui -v main.go
-      - upx x-ui/x-ui
+      # - upx x-ui/x-ui
       - task: download-xray
         vars: { FriendlyName: '{{.FriendlyName}}' }
       - task: copy-resource
@@ -52,3 +52,10 @@ tasks:
   default:
     cmds:
       - task: linux-amd64
+
+  debug:
+    cmds:
+      - |
+        XUI_DEBUG=true CGO_ENABLED=1 \
+        go run main.go   
+      

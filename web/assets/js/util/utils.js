@@ -1,3 +1,4 @@
+
 class HttpUtil {
     static _handleMsg(msg) {
         if (!(msg instanceof Msg)) {
@@ -10,6 +11,12 @@ class HttpUtil {
             Vue.prototype.$message.success(msg.msg);
         } else {
             Vue.prototype.$message.error(msg.msg);
+            if (msg.msg == '登录时效已过，请重新登录') {
+                setTimeout(() => {
+                    Vue.prototype.$message.warning("自动跳转至登录页...")
+                    setTimeout(() => { window.location.reload() }, 3000)
+                }, 2000)
+            }
         }
     }
 
@@ -89,6 +96,31 @@ const seq = [
     'U', 'V', 'W', 'X', 'Y', 'Z'
 ];
 
+const shortIdSeq = [
+    'a', 'b', 'c', 'd', 'e', 'f',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+];
+
+const x25519Map = new Map(
+    [
+        ['ME5TP2l9tYbgeGRxf05_LEiXYFOyeqn3TMRju79VWVc', "g1f1wLjim5gOVGnI5LGUV0dL4iFXPoiepOPZfSxJe14"],
+        ['MGpadXgOh0X_ylHa8y4OO_0QdRIVEXgwCdeJ3wkFUEo', "S-g0oP36DShii1uPOnZDSEhp_wQghX6h68PgMivOmD4"],
+        ['SMUNw4bzoh4YNVNqjKhROUJNm94W0dV0YWUqwUL7WWc', "g-oxbqigzCaXqARxuyD2_vbTYeMD9zn8wnTo02S69QM"],
+        ['qETaaytJUuSHU0Bp8nhYL9-f8prNlCthvukmR29Pqk4', "9rx7JwMO-KRZZEM9TQBO19BOAmmGjJyjN86ll2J7uVc"],
+        ['YFHgoHbN8fBzOCjmcQeAPK7KhfwN8wbxfoarjSFw_mg', 'Z3ZGnAOdKkzJ07gR_7_0k9_iTTFP6paDOrqx1rN2LU4'],
+        ['oKVwj79wHXjWIFUq0qkmdHXusmr4fQYPNeNM--6f03g', 'rYH4wPTVzSwtpXgI3U7YxppIP6oudD-425vT7pyhj1w'],
+        ['cAtmGR6xSiqLXpogMs25jnbSqxLLL6a3Q9DseqlSQV4', '4comh-7Jm_wZXJQ5QiLSCbVGQIbMUzHUIBdb0aFtLzM'],
+        ['SKY-V28aSzTux3jRMYf_0P_KiDm7ktd0ULu7_l-rxWI', 'UtL7E0Gmxj3X5JdcPAutpTRKo7K2hugkR0vwk2XroUM'],
+        ['YAs6KwZahtKsCG7gRUsKi8d9DfVTzCz_z5jLsvE-r1U', 'IiuIighvDsor2v-vb5s3IJbNiqwLw568auiqoXxc7FM'],
+        ['MCCwTFk3CxRaP4H6wrPI4tUQXBvq5ba_dyVBpLG06FI', 'rwpbqas_HY8knlW0fFSIeUrjgBXHBzSNboflsLD8elA'],
+        ['YOYUy0H_t-GZKTYJ6eVB8iDd_L_CyYmXQe_-rCP7_VM', 'W9BjX6YmCIVsjhKMlz233Yoe0xcf0SVHfvPKqbf3vCg'],
+        ['GD1oTwgOIh3hBuSXb2OnPtCx0a8_FwBBZh_Gk840qGU', 'cDaDzPr3PlS3NM8lreHZbdo-Mhqz8vMBzMSkHXhGIUA'],
+        ['WOnYR0Jwy7MAzrz5vpWBDxr6thXjFk0rv_gCHGWEFHk', 'R2gKMF0Tetlnesc1pPkZH9NaOeehw-f5_U9JKG_cLjU'],
+        ['uCDvXj-LVmgJa3IoR-VQkInucVyZO0AtF0IYUPLgPUY', 'UK7qxWWGfRQcQfwaGpHnqmmqqJBut4jxve8AeDDJ2UI'],
+        ['6OMBI97diaQ66QNbIP0ae00t8i_SaEJ5gsv8oZ2ncks', 'qhTzYYIgBzDLNYR79oxftqdo1kzL-1_hGJKfqrOliCY'],
+    ]
+);
+
 class RandomUtil {
 
     static randomIntRange(min, max) {
@@ -103,6 +135,14 @@ class RandomUtil {
         let str = '';
         for (let i = 0; i < count; ++i) {
             str += seq[this.randomInt(62)];
+        }
+        return str;
+    }
+
+    static randomShortIdSeq(count) {
+        let str = '';
+        for (let i = 0; i < count; ++i) {
+            str += shortIdSeq[this.randomInt(16)];
         }
         return str;
     }
@@ -128,6 +168,12 @@ class RandomUtil {
         return str;
     }
 
+    static randomEmail() {
+        let str = '';
+        str = this.randomSeq(4) + ".love@xray.com";
+        return str;
+    }
+
     static randomUUID() {
         let d = new Date().getTime();
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -135,6 +181,30 @@ class RandomUtil {
             d = Math.floor(d / 16);
             return (c === 'x' ? r : (r & 0x7 | 0x8)).toString(16);
         });
+    }
+
+    static randowShortId() {
+        let str = '' + ',';
+        str += (this.randomShortIdSeq(2) + ',')
+        str += (this.randomShortIdSeq(4) + ',')
+        str += (this.randomShortIdSeq(6) + ',')
+        str += this.randomShortIdSeq(8)
+        return str;
+    }
+
+    static randomX25519PrivateKey() {
+        let num = x25519Map.size;
+        let index = this.randomInt(num);
+        let cntr = 0;
+        for (let key of x25519Map.keys()) {
+            if (cntr++ === index) {
+                return key;
+            }
+        }
+    }
+
+    static randomX25519PublicKey(key) {
+        return x25519Map.get(key)
     }
 }
 

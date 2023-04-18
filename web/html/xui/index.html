@@ -77,6 +77,8 @@
                                 <a-icon type="question-circle" theme="filled"></a-icon>
                             </a-tooltip>
                             <a-tag color="green" @click="openSelectV2rayVersion">[[ status.xray.version ]]</a-tag>
+                            <a-tag color="blue" @click="stopXrayService">停止服务</a-tag>
+                            <a-tag color="blue" @click="restartXrayService">重启服务</a-tag>
                             <a-tag color="blue" @click="openSelectV2rayVersion">切换版本</a-tag>
                         </a-card>
                     </a-col>
@@ -292,6 +294,12 @@
             },
             setStatus(data) {
                 this.status = new Status(data);
+            },
+            async stopXrayService() {
+                await HttpUtil.post('server/stopXrayService');
+            },
+            async restartXrayService() {
+                await HttpUtil.post('server/restartXrayService');
             },
             async openSelectV2rayVersion() {
                 this.loading(true);

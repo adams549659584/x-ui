@@ -43,6 +43,14 @@ function formatSecond(second) {
     }
 }
 
+function formatCoreNum(num) {
+    if (num > 1) {
+        return num + " cores";
+    } else {
+        return num + " core";
+    }
+}
+
 function addZero(num) {
     if (num < 10) {
         return "0" + num;

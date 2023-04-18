@@ -14,7 +14,7 @@
     </a-form-item>
     <a-form-item>
         <span slot="label">
-            监听 IP
+            监听地址
             <a-tooltip>
                 <template slot="title">
                     默认留空即可
@@ -29,7 +29,7 @@
     </a-form-item>
     <a-form-item>
         <span slot="label">
-            总流量(GB)
+            总流量
             <a-tooltip>
                 <template slot="title">
                     0 表示不限制
@@ -49,9 +49,45 @@
                 <a-icon type="question-circle" theme="filled"></a-icon>
             </a-tooltip>
         </span>
-        <a-date-picker :show-time="{ format: 'HH:mm' }" format="YYYY-MM-DD HH:mm"
-                       v-model="dbInbound._expiryTime" style="width: 300px;"></a-date-picker>
+        <a-date-picker :show-time="{ format: 'HH:mm' }" format="YYYY-MM-DD HH:mm" v-model="dbInbound._expiryTime"
+            style="width: 300px;"></a-date-picker>
     </a-form-item>
+    <!-- <a-form-item>
+        <span slot="label">
+            自动重置
+            <a-tooltip>
+                <template slot="title">
+                    开启后月初将自动清除流量
+                </template>
+                <a-icon type="question-circle" theme="filled"></a-icon>
+            </a-tooltip>
+        </span>
+        <a-switch v-model="dbInbound.autoreset"></a-switch>
+    </a-form-item> -->
+    <!-- <a-form-item>
+        <span slot="label">
+            设备提醒
+            <a-tooltip>
+                <template slot="title">
+                    开启后设备IP变化时将进行通知
+                </template>
+                <a-icon type="question-circle" theme="filled"></a-icon>
+            </a-tooltip>
+        </span>
+        <a-switch v-model="dbInbound.ipalert"></a-switch>
+    </a-form-item> -->
+    <!-- <a-form-item>
+        <span slot="label">
+            设备限制
+            <a-tooltip>
+                <template slot="title">
+                    0代表不限制并发设备数量
+                </template>
+                <a-icon type="question-circle" theme="filled"></a-icon>
+            </a-tooltip>
+        </span>
+        <a-input-number v-model="dbInbound.iplimit" :min="0" style="width: 60px"></a-input-number>
+    </a-form-item> -->
 </a-form>
 
 <!-- vmess settings -->
