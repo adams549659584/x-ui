@@ -27,18 +27,30 @@
       "protocol": "blackhole",
       "settings": {},
       "tag": "blocked"
+    },
+    {
+      "tag": "WARP",
+      "protocol": "wireguard",
+      "settings": {
+        "secretKey": "xxxxxx",
+        "address": [
+          "172.16.0.2/32",
+          "2606:4700:110:8e0b:98a1:a650:5bf1:9c27/128"
+        ],
+        "peers": [
+          {
+            "publicKey": "xxxxxx",
+            "endpoint": "engage.cloudflareclient.com:2408"
+          }
+        ]
+      }
     }
   ],
   "policy": {
     "levels": {
       "0": {
-        "handshake": 10,
-        "connIdle": 100,
-        "uplinkOnly": 2,
-        "downlinkOnly": 3,
         "statsUserUplink": true,
-        "statsUserDownlink": true,
-        "bufferSize": 10240
+        "statsUserDownlink": true
       }
     },
     "system": {
@@ -48,6 +60,15 @@
   },
   "routing": {
     "rules": [
+      {
+        "type": "field",
+        "domain": [
+          "full:cloudflare.com",
+          "domain:openai.com",
+          "domain:ai.com"
+        ],
+        "outboundTag": "WARP"
+      },
       {
         "inboundTag": [
           "api"

@@ -22,6 +22,7 @@ import (
 )
 
 var trafficRegex = regexp.MustCompile("(inbound|outbound)>>>([^>]+)>>>traffic>>>(downlink|uplink)")
+var userTrafficRegex = regexp.MustCompile("(user)>>>([^>]+)>>>traffic>>>(downlink|uplink)")
 
 func GetBinaryName() string {
 	return fmt.Sprintf("xray-%s-%s", runtime.GOOS, runtime.GOARCH)
@@ -253,26 +254,32 @@ func (p *process) GetTraffic(reset bool) ([]*Traffic, error) {
 	traffics := make([]*Traffic, 0)
 	for _, stat := range resp.GetStat() {
 		matchs := trafficRegex.FindStringSubmatch(stat.Name)
-		isInbound := matchs[1] == "inbound"
-		tag := matchs[2]
-		isDown := matchs[3] == "downlink"
-		if tag == "api" {
-			continue
-		}
-		traffic, ok := tagTrafficMap[tag]
-		if !ok {
-			traffic = &Traffic{
-				IsInbound: isInbound,
-				Tag:       tag,
+		if len(matchs) > 0 {
+			isInbound := matchs[1] == "inbound"
+			tag := matchs[2]
+			isDown := matchs[3] == "downlink"
+			if tag == "api" {
+				continue
 			}
-			tagTrafficMap[tag] = traffic
-			traffics = append(traffics, traffic)
+			traffic, ok := tagTrafficMap[tag]
+			if !ok {
+				traffic = &Traffic{
+					IsInbound: isInbound,
+					Tag:       tag,
+				}
+				tagTrafficMap[tag] = traffic
+				traffics = append(traffics, traffic)
+			}
+			if isDown {
+				traffic.Down = stat.Value
+			} else {
+				traffic.Up = stat.Value
+			}
 		}
-		if isDown {
-			traffic.Down = stat.Value
-		} else {
-			traffic.Up = stat.Value
-		}
+		// todo user match
+		// userMatchs := userTrafficRegex.FindStringSubmatch(stat.Name)
+		// if len(userMatchs) > 0 {
+		// }
 	}
 
 	return traffics, nil
