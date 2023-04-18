@@ -77,9 +77,30 @@
                                 <a-icon type="question-circle" theme="filled"></a-icon>
                             </a-tooltip>
                             <a-tag color="green" @click="openSelectV2rayVersion">[[ status.xray.version ]]</a-tag>
-                            <a-tag color="blue" @click="stopXrayService">停止服务</a-tag>
-                            <a-tag color="blue" @click="restartXrayService">重启服务</a-tag>
-                            <a-tag color="blue" @click="openSelectV2rayVersion">切换版本</a-tag>
+                            <a-tooltip>
+                                <template slot="title">
+                                    停止xray服务
+                                </template>
+                                <a-tag color="red" @click="stopXrayService" style="cursor: pointer;"><a-icon type="poweroff" style="color: #ff4d4f;"></a-icon></a-tag>
+                            </a-tooltip>
+                            <a-tooltip>
+                                <template slot="title">
+                                    重启xray服务
+                                </template>
+                                <a-tag color="green" @click="restartXrayService" style="cursor: pointer;"><a-icon type="reload" style="color: #87d068;"></a-icon></a-tag>
+                            </a-tooltip>
+                            <a-tooltip>
+                                <template slot="title">
+                                    更新geoip、geosite
+                                </template>
+                                <a-tag color="blue" @click="updateGeoipAndSite" style="cursor: pointer;"><a-icon type="cloud-download" style="color: #1890ff;"></a-icon></a-tag>
+                            </a-tooltip>
+                            <a-tooltip>
+                                <template slot="title">
+                                    切换xray版本
+                                </template>
+                                <a-tag color="blue" @click="openSelectV2rayVersion" style="cursor: pointer;"><a-icon type="switcher" style="color: #1890ff;"></a-icon></a-tag>
+                            </a-tooltip>
                         </a-card>
                     </a-col>
                     <a-col :sm="24" :md="12">
@@ -300,6 +321,11 @@
             },
             async restartXrayService() {
                 await HttpUtil.post('server/restartXrayService');
+            },
+            async updateGeoipAndSite() {
+                this.loading(true);
+                const msg = await HttpUtil.post('server/updateGeoipAndSite');
+                this.loading(false);
             },
             async openSelectV2rayVersion() {
                 this.loading(true);

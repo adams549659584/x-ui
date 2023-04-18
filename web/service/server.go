@@ -5,12 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/disk"
-	"github.com/shirou/gopsutil/host"
-	"github.com/shirou/gopsutil/load"
-	"github.com/shirou/gopsutil/mem"
-	"github.com/shirou/gopsutil/net"
 	"io"
 	"io/fs"
 	"net/http"
@@ -20,6 +14,13 @@ import (
 	"x-ui/logger"
 	"x-ui/util/sys"
 	"x-ui/xray"
+
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/disk"
+	"github.com/shirou/gopsutil/host"
+	"github.com/shirou/gopsutil/load"
+	"github.com/shirou/gopsutil/mem"
+	"github.com/shirou/gopsutil/net"
 )
 
 type ProcessState string
@@ -236,6 +237,28 @@ func (s *ServerService) downloadXRay(version string) (string, error) {
 	return fileName, nil
 }
 
+func (s *ServerService) downloadFile(url string, fileName string) (string, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	os.Remove(fileName)
+	file, err := os.Create(fileName)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return fileName, nil
+}
+
 func (s *ServerService) UpdateXray(version string) error {
 	zipFileName, err := s.downloadXRay(version)
 	if err != nil {
@@ -298,4 +321,55 @@ func (s *ServerService) UpdateXray(version string) error {
 
 	return nil
 
+}
+
+func copyFile(srcFileName string, dstFileName string) error {
+	src, err := os.Open(srcFileName)
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	dst, err := os.Create(dstFileName)
+	if err != nil {
+		return err
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ServerService) UpdateGeoIpAndSite() error {
+	geoipFileName, err := s.downloadFile("https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat", "geoip.dat")
+	if err != nil {
+		return err
+	}
+	geositeFileName, err := s.downloadFile("https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat", "geosite.dat")
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		os.Remove(geoipFileName)
+		os.Remove(geositeFileName)
+		err := s.xrayService.RestartXray(true)
+		if err != nil {
+			logger.Error("start xray failed:", err)
+		}
+	}()
+
+	err = copyFile(geoipFileName, xray.GetGeoipPath())
+	if err != nil {
+		return err
+	}
+	err = copyFile(geositeFileName, xray.GetGeositePath())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

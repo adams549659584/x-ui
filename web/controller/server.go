@@ -39,6 +39,7 @@ func (a *ServerController) initRouter(g *gin.RouterGroup) {
 	g.POST("/installXray/:version", a.installXray)
 	g.POST("/stopXrayService", a.stopXrayService)
 	g.POST("/restartXrayService", a.restartXrayService)
+	g.POST("/updateGeoipAndSite", a.updateGeoipAndSite)
 }
 
 func (a *ServerController) refreshStatus() {
@@ -96,4 +97,9 @@ func (a *ServerController) stopXrayService(c *gin.Context) {
 func (a *ServerController) restartXrayService(c *gin.Context) {
 	err := a.xrayService.RestartXray(true)
 	jsonMsg(c, "重启xray服务", err)
+}
+
+func (a *ServerController) updateGeoipAndSite(c *gin.Context) {
+	err := a.serverService.UpdateGeoIpAndSite()
+	jsonMsg(c, "更新geoip和geosite", err)
 }
