@@ -16,7 +16,7 @@ type Config struct {
 	API             json_util.RawMessage `json:"api"`
 	Stats           json_util.RawMessage `json:"stats"`
 	Reverse         json_util.RawMessage `json:"reverse"`
-	FakeDNS         json_util.RawMessage `json:"fakeDns"`
+	FakeDNS         json_util.RawMessage `json:"fakedns"`
 }
 
 func (c *Config) Equals(other *Config) bool {
