@@ -45,9 +45,11 @@ func (s *UserService) CheckUser(username string, password string) *model.User {
 func (s *UserService) UpdateUser(id int, username string, password string) error {
 	db := database.GetDB()
 	return db.Model(model.User{}).
-		Where("id = ?", id).
-		Update("username", username).
-		Update("password", password).
+		Where(model.User{Id: id}).
+		UpdateColumns(model.User{
+			Username: username,
+			Password: password,
+		}).
 		Error
 }
 
