@@ -2,6 +2,7 @@ FROM alpine:latest
 
 ARG REPO_USER=adams549659584
 ARG X_UI_VERSION=0.3.3
+ARG TARGETARCH
 
 WORKDIR /usr/local/
 RUN apk update && \
@@ -11,9 +12,9 @@ RUN apk update && \
 RUN mkdir -p /lib64 && \
     ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
 
-RUN wget -q https://github.com/${REPO_USER}/x-ui/releases/download/${X_UI_VERSION}/x-ui-linux-amd64.tar.gz && \
-    tar -zxvf x-ui-linux-amd64.tar.gz && \
-    rm x-ui-linux-amd64.tar.gz
+RUN wget -q https://github.com/${REPO_USER}/x-ui/releases/download/${X_UI_VERSION}/x-ui-linux-${TARGETARCH}.tar.gz && \
+    tar -zxvf x-ui-linux-${TARGETARCH}.tar.gz && \
+    rm x-ui-linux-${TARGETARCH}.tar.gz
 
 # COPY x-ui /usr/local/x-ui
 
